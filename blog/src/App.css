@@ -1,0 +1,51 @@
+@import 'antd/dist/reset.css';
+
+body {
+  color: #24292e;
+  min-width: 1024px;
+  word-wrap: break-word;
+}
+
+.container {
+  margin: 0 auto;
+  max-width: 1200px;
+}
+a {
+  background-color: transparent;
+}
+a,
+a:link,
+a:visited {
+  text-decoration: none;
+}
+a:hover {
+  color: #58a6ff;
+  text-decoration: underline;
+}
+ul,
+ol,
+li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.fl {
+  float: left;
+}
+.fr {
+  float: right;
+}
+.clearfix::before,
+.clearfix::after {
+  display: table;
+  content: '';
+}
+.clearfix::after {
+  clear: both;
+}
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
