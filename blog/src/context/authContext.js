@@ -1,5 +1,23 @@
 import React, { createContext, useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
+import { toast } from 'react-toastify'
+
+const toastOptions = {
+  position: 'bottom-right',
+  autoClose: 1000,
+  pauseOnHover: true,
+  draggable: true,
+  theme: 'dark',
+}
+
+/**
+ * 弹出提示消息
+ * @param {String} message 提示消息
+ * @param {String} type 提示类型
+ */
+const showToast = (message, type = 'error') => {
+  toast[type](message, toastOptions)
+}
 
 /**
  * 登录状态上下文
@@ -27,7 +45,6 @@ export function AuthContextProvider({ children }) {
   /**
    * 登录方法
    * @param {Object} inputs 登录表单信息
-   * @returns
    */
   const login = async (inputs) => {
     const data = await fetch('/auth/login', {
@@ -40,21 +57,23 @@ export function AuthContextProvider({ children }) {
     }).then((res) => res.json())
     if (data.status === 'success') {
       setCurrentUser(data.result.data)
+      showToast(data.message, 'success')
     }
-    return data
   }
   /**
    * 退出方法
-   * @returns
    */
   const logout = async () => {
     const data = await fetch('/auth/logout').then((res) => res.json())
-    setCurrentUser(null)
-    return data
+    if (data.status === 'success') {
+      setCurrentUser(null)
+      showToast(data.message, 'warn')
+    }
   }
+
   // 此上下文容器提供了当前登录用户信息,登录和退出方法
   return (
-    <AuthContext.Provider value={{ currentUser, login, logout }}>
+    <AuthContext.Provider value={{ currentUser, login, logout, showToast }}>
       {children}
     </AuthContext.Provider>
   )

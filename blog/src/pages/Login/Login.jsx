@@ -1,55 +1,56 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { toast } from 'react-toastify'
 import { AuthContext } from '../../context/authContext'
 import Container from './style'
 
 export default function Login() {
   const navigate = useNavigate()
-  const { currentUser, login } = useContext(AuthContext)
+  const { currentUser, login, showToast } = useContext(AuthContext)
   useEffect(() => {
     if (currentUser) {
       navigate('/')
     }
   }, [])
-  const toastOptions = {
-    position: 'bottom-right',
-    autoClose: 1000,
-    pauseOnHover: true,
-    draggable: true,
-    theme: 'dark',
-  }
   const [values, setValues] = useState({
     email: '',
     password: '',
   })
+  /**
+   * 表单输入变化
+   * @param {Object} event
+   */
   const handleChange = (event) => {
     setValues({ ...values, [event.target.name]: event.target.value })
   }
+  /**
+   * 表单校验
+   * @returns
+   */
   const handleValidation = () => {
     const { email, password } = values
     if (!email) {
-      toast.error('请输入邮箱', toastOptions)
+      showToast('请输入邮箱')
       document.querySelector('input[name="email"]').focus()
       return false
     }
     if (!password) {
-      toast.error('请输入密码', toastOptions)
+      showToast('请输入密码')
       document.querySelector('input[name="password"]').focus()
       return false
     }
     return true
   }
+  /**
+   * 表单提交
+   * @param {Object} event
+   */
   const handleSubmit = async (event) => {
     event.preventDefault()
     if (handleValidation()) {
-      const res = await login(values)
-      if (res.status === 'success') {
-        toast.success(res.message, toastOptions)
-        setTimeout(() => {
-          navigate('/')
-        }, 500)
-      }
+      await login(values)
+      setTimeout(() => {
+        navigate('/')
+      }, 500)
     }
   }
   return (

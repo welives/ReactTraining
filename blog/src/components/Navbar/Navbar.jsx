@@ -2,7 +2,6 @@ import React, { useContext } from 'react'
 import { FaGithub, FaBell, FaPlus } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
 import { Input, Avatar } from 'antd'
-import { toast } from 'react-toastify'
 import {
   Container,
   NavLogo,
@@ -16,25 +15,12 @@ import avatarImg from '../../assets/img/avatar.jpg'
 import { AuthContext } from '../../context/authContext'
 
 export default function Navbar() {
-  const toastOptions = {
-    position: 'bottom-right',
-    autoClose: 1000,
-    pauseOnHover: true,
-    draggable: true,
-    theme: 'dark',
-  }
   const { currentUser, logout } = useContext(AuthContext)
-  const handleLogout = () => {
-    const res = logout()
-    if (res.status === 'success') {
-      toast.warn(res.message, toastOptions)
-    }
-  }
   const handleDropdownClick = (e) => {
     document.querySelector('details[open]').removeAttribute('open')
     switch (e) {
       case 'logout':
-        handleLogout()
+        logout()
         break
       case 'publish':
         break
