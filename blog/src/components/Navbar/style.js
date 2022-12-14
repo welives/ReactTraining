@@ -71,7 +71,12 @@ export const UserNav = styled.ul`
     justify-content: center;
     color: #f0f6fc;
     cursor: pointer;
-    &:hover {
+    a {
+      color: #f0f6fc;
+      text-decoration: none;
+    }
+    &:hover,
+    a:hover {
       color: rgba(255, 255, 255, 0.7);
     }
     svg {

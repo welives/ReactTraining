@@ -12,7 +12,7 @@ const sendErrorDev = (err, res) => {
 // 生产环境打印错误
 const sendErrorProd = (err, res) => {
   // 已知的自定义错误，可以发送到客户端
-  if (err.isOperational) {
+  if (err.isHandler) {
     res.status(err.statusCode).json({
       status: err.status,
       message: err.message,
@@ -24,7 +24,7 @@ const sendErrorProd = (err, res) => {
     // 2）发送错误信息
     res.status(500).json({
       status: 'error',
-      message: '发生未知的错误!',
+      message: '服务器异常!',
     })
   }
 }
@@ -41,7 +41,6 @@ module.exports = (err, req, res, next) => {
   } else {
     let error = { ...err }
     // 处理自定义错误
-
     if (err.name === 'JsonWebTokenError') error = handleJWTError(err)
     if (err.name === 'TokenExpiredError') error = handleJWTExpiredError(err)
     sendErrorProd(error, res)

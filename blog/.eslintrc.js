@@ -34,6 +34,7 @@ module.exports = {
     'jsx-a11y/no-static-element-interactions': 0,
     'react/jsx-filename-extension': [1, { extensions: ['.js', '.jsx'] }],
     'react/no-array-index-key': 0,
+    'react/jsx-no-constructed-context-values': 0,
     'react-hooks/exhaustive-deps': 0,
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
     'no-console': 0,

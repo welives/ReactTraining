@@ -1,14 +1,13 @@
 const express = require('express')
 const helmet = require('helmet')
 const morgan = require('morgan')
-// const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const path = require('path')
 const AppError = require('./utils/appError')
 const globalErrorHandler = require('./controllers/errorController')
 const app = express()
 
-// HTTP Header
+// HTTP Header信息保护
 app.use(helmet())
 
 // 开发环境日志记录
@@ -16,13 +15,13 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'))
 }
 
-// 跨域处理
-// app.use(cors({ credentials: true, origin: true }))
-
-// 用于把请求中的查询字符串转化成json数据
+// 解析json格式的请求体数据
 app.use(express.json())
-app.use(cookieParser())
+// 解析url-encoded格式的数据
 app.use(express.urlencoded({ extended: false }))
+
+// cookie解析
+app.use(cookieParser())
 
 // 静态资源
 app.use(express.static(path.resolve(__dirname, 'public')))

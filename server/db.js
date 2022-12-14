@@ -9,10 +9,10 @@ const db = mysql.createConnection({
 
 db.connect((err) => {
   if (err) {
-    console.error('error connecting: ' + err.stack)
+    console.error('MySQL连接失败: ' + err.stack)
     return
   }
-  console.log('connected as id ' + db.threadId)
+  console.log('MySQL连接成功,id为' + db.threadId)
 })
 db.on('error', (err) => {
   console.error('数据库错误:', err)

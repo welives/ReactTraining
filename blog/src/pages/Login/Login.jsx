@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import { AuthContext } from '../../context/authContext'
 import Container from './style'
 
 export default function Login() {
   const navigate = useNavigate()
+  const { currentUser, login } = useContext(AuthContext)
   useEffect(() => {
-    if (localStorage.getItem('blog_user')) {
+    if (currentUser) {
       navigate('/')
     }
   }, [])
@@ -41,21 +43,12 @@ export default function Login() {
   const handleSubmit = async (event) => {
     event.preventDefault()
     if (handleValidation()) {
-      const data = await fetch('/auth/login', {
-        method: 'POST',
-        credentials: 'include', // 允许客户端保存cookie
-        headers: new Headers({
-          'Content-Type': 'application/json',
-        }),
-        body: JSON.stringify({ ...values }),
-      }).then((res) => res.json())
-      console.log(data)
-      if (data.status === 'success') {
-        toast.success(data.message, toastOptions)
-        localStorage.setItem('blog_user', JSON.stringify(data.result.data))
+      const res = await login(values)
+      if (res.status === 'success') {
+        toast.success(res.message, toastOptions)
         setTimeout(() => {
           navigate('/')
-        }, 1000)
+        }, 500)
       }
     }
   }

@@ -1,7 +1,6 @@
 const bcrypt = require('bcryptjs')
 const validator = require('validator')
 const AppError = require('../utils/appError')
-const catchAsync = require('../utils/catchAsync')
 const Auth = require('./authController')
 const db = require('../db')
 
@@ -13,18 +12,21 @@ exports.register = (req, res, next) => {
   if (!validator.isEmail(email))
     return next(new AppError('邮箱格式不正确', 400))
 
-  const q = 'SELECT * FROM `users` WHERE `email` = ? OR `username` = ?'
-  db.query(q, [email, username], (err, data) => {
+  // 1. 先查出是否被占用
+  let sql = 'SELECT * FROM `users` WHERE `email` = ? OR `username` = ?'
+  db.query(sql, [email, username], (err, data) => {
     if (err) return next(new AppError('数据库操作错误', 500))
     if (data.length) return next(new AppError('用户已存在', 409))
 
-    // 密码加密
+    // 2. 没被占用就对提交上来的密码进行加密
     const hashPassword = bcrypt.hashSync(password, 12)
-    const q =
+    sql =
       'INSERT INTO users(`username`, `email`, `password`, `created_at`) VALUES(?)'
     const values = [username, email, hashPassword, new Date()]
-    db.query(q, [values], (err, data) => {
+    // 3. 插入一条新记录
+    db.query(sql, [values], (err, data) => {
       if (err) return next(new AppError('数据库操作错误', 500))
+      console.log(data)
       Auth.sendToken(
         { id: data.insertId, username, email },
         201,
@@ -42,12 +44,13 @@ exports.login = (req, res, next) => {
   if (!validator.isEmail(req.body.email))
     return next(new AppError('邮箱格式不正确', 400))
 
-  const q = 'SELECT * FROM `users` WHERE `email` = ?'
-  db.query(q, req.body.email, (err, data) => {
+  // 1. 先查找是否有该用户
+  let sql = 'SELECT * FROM `users` WHERE `email` = ?'
+  db.query(sql, req.body.email, (err, data) => {
     if (err) return next(new AppError('数据库操作错误', 500))
     if (data.length === 0) return next(new AppError('用户不存在', 404))
 
-    // 密码比对
+    // 2. 如果有的话就进行密码比对
     const isPasswordCorrect = bcrypt.compareSync(
       req.body.password,
       data[0].password

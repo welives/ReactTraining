@@ -9,7 +9,8 @@ class AppError extends Error {
     } else {
       this.status = 'error'
     }
-    this.isOperational = true
+    // 用来标识自定义错误
+    this.isHandler = true
 
     Error.captureStackTrace(this, this.constructor)
   }

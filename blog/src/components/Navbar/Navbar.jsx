@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { FaGithub, FaBell, FaPlus } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
 import { Input, Avatar } from 'antd'
@@ -13,6 +13,7 @@ import {
   DropdownMenu,
 } from './style'
 import avatarImg from '../../assets/img/avatar.jpg'
+import { AuthContext } from '../../context/authContext'
 
 export default function Navbar() {
   const toastOptions = {
@@ -22,11 +23,11 @@ export default function Navbar() {
     draggable: true,
     theme: 'dark',
   }
-  const handleLogout = async () => {
-    const data = await fetch('/auth/logout').then((res) => res.json())
-    if (data.status === 'success') {
-      toast.warn(data.message, toastOptions)
-      localStorage.removeItem('blog_user')
+  const { currentUser, logout } = useContext(AuthContext)
+  const handleLogout = () => {
+    const res = logout()
+    if (res.status === 'success') {
+      toast.warn(res.message, toastOptions)
     }
   }
   const handleDropdownClick = (e) => {
@@ -94,20 +95,24 @@ export default function Navbar() {
             </Details>
           </li>
           <li>
-            <Details>
-              <summary>
-                <Avatar size="small" src={avatarImg} />
-                <span className="dropdown-caret" />
-              </summary>
-              <DropdownMenu>
-                <Link
-                  onClick={() => handleDropdownClick('logout')}
-                  className="dropdown-item"
-                >
-                  退出
-                </Link>
-              </DropdownMenu>
-            </Details>
+            {currentUser ? (
+              <Details>
+                <summary>
+                  <Avatar size="small" src={avatarImg} />
+                  <span className="dropdown-caret" />
+                </summary>
+                <DropdownMenu>
+                  <Link
+                    onClick={() => handleDropdownClick('logout')}
+                    className="dropdown-item"
+                  >
+                    退出
+                  </Link>
+                </DropdownMenu>
+              </Details>
+            ) : (
+              <Link to="/login">登录</Link>
+            )}
           </li>
         </UserNav>
       </nav>
