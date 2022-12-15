@@ -84,6 +84,11 @@ export const UserNav = styled.ul`
       vertical-align: text-bottom;
       font-size: 1.1rem;
     }
+    .name {
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 10px;
+    }
   }
   .dropdown-caret {
     margin-left: 3px;

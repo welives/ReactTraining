@@ -80,6 +80,39 @@ export default function App() {
 npm i express mysql
 ```
 
+## 一些关于mysql包的占位符 ?和?? 的踩坑记录
+> 字段名如果和mysql的保留字或关键字冲突的时候要用反引号包裹起来
+```js
+db.format('SELECT * FROM categories WHERE `key` = ?', ['gossip'])
+```
+
+> 单个 ? 的占位符只会被替换为数字或字符串
+```js
+// SELECT * FROM posts WHERE id = 1 OR title = '标题'
+db.format('SELECT * FROM posts WHERE id = ? OR title = ?', [1, '标题'])
+```
+
+> 两个 ?? 的占位符会被替换为由反引号包裹起来的值, 这些值可能会是 库名, 表名, 字段名, 操作符, 关键字, 保留字 等等。最佳实践是仅用 ?? 来代替库名,表名,字段名
+```js
+// SELECT `title`, `content` FROM posts WHERE title LIKE '%测试%'
+db.format(
+  'SELECT ?? FROM posts WHERE title LIKE ?',
+  [['title', 'content'], '%测试%']
+)
+
+// SELECT `posts`.*, `users`.`username` AS `author` FROM posts JOIN users ON `posts`.`uid` = `users`.`id`
+db.format('SELECT ??.?, ?? AS ?? FROM posts JOIN users ON ?? ? ??', [
+  'posts',
+  mysql.raw('*'), // 最好不要用占位符来代替mysql的限定符或操作符,此处只是演示而已
+  'users.username',
+  'author',
+  'posts.uid',
+  mysql.raw('='), // 最好不要用占位符来代替mysql的限定符或操作符,此处只是演示而已
+  'users.id',
+])
+// 正确的做法是写成这样 SELECT ??.*, ?? AS ?? FROM posts JOIN users ON ?? = ??
+```
+
 app.js
 ```js
 const express = require('express')

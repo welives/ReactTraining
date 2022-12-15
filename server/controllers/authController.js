@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken')
 const AppError = require('../utils/appError')
-const catchAsync = require('../utils/catchAsync')
+const db = require('../db')
 
 /**
  * 生成token签名
@@ -43,24 +43,24 @@ exports.sendToken = (user, statusCode, message, res) => {
 /**
  * 验证token
  */
-exports.authCheck = catchAsync(async (req, res, next) => {
+exports.authCheck = (req, res, next) => {
   // 1) 获取token
-  let token
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
-  ) {
-    token = req.headers.authorization.split(' ')[1]
-  }
+  const token =
+    req.headers.authorization && req.headers.authorization.startsWith('Bearer')
+      ? req.headers.authorization.split(' ')[1]
+      : req.cookies.access_token ?? req.cookies.access_token
   if (!token)
     return next(new AppError('您还未登录! 请先登录再进行相关操作', 401))
   // 2) 验证token
   const decode = jwt.verify(token, process.env.JWT_SECRET)
   // 3) 检查token所携带的用户信息
-  const currentUser = await User.findById(decode.id)
-  if (!currentUser) return next(new AppError('用户不存在', 404))
-
-  // 传递用户信息给下一个中间件
-  req.user = currentUser
-  next()
-})
+  const sql = 'SELECT * FROM users'
+  const where = db.format(' WHERE id = ?', decode.id)
+  db.query(sql + where, (err, result) => {
+    if (err) return next(new AppError('数据库操作错误', 500))
+    if (result.length === 0) return next(new AppError('用户不存在', 404))
+    // 传递用户信息给下一个中间件
+    req.user = result[0]
+    next()
+  })
+}

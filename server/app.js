@@ -27,7 +27,8 @@ app.use(cookieParser())
 app.use(express.static(path.resolve(__dirname, 'public')))
 
 app.use('/api/auth', require('./routes/userRoutes'))
-app.use('/api/posts', require('./routes/postRoutes'))
+app.use('/api/post', require('./routes/postRoutes'))
+app.use('/api/category', require('./routes/categoryRoutes'))
 
 // 捕获所有未被匹配的路由,必须放在所有路由的最后
 app.all('*', (req, res, next) => {

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { FaGithub, FaBell, FaPlus } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
 import { Input, Avatar } from 'antd'
@@ -15,14 +15,22 @@ import avatarImg from '../../assets/img/avatar.jpg'
 import { AuthContext } from '../../context/authContext'
 
 export default function Navbar() {
+  const [cates, setCates] = useState([])
+  useEffect(() => {
+    ;(async () => {
+      const data = await fetch('/category/list').then((res) => res.json())
+      if (data.status === 'success') {
+        setCates(data.result.data)
+      }
+    })()
+  }, [])
+
   const { currentUser, logout } = useContext(AuthContext)
   const handleDropdownClick = (e) => {
     document.querySelector('details[open]').removeAttribute('open')
     switch (e) {
       case 'logout':
         logout()
-        break
-      case 'publish':
         break
       default:
         break
@@ -40,50 +48,43 @@ export default function Navbar() {
           <Input placeholder="暂无搜索" />
         </SearchBar>
         <StyledNavbar>
-          <li>
+          {/* <li>
             <Link to="/?category=frontend">前端</Link>
-          </li>
-          <li>
-            <Link to="/?category=backend">后端</Link>
-          </li>
-          <li>
-            <Link to="/?category=technology">技术</Link>
-          </li>
-          <li>
-            <Link to="/?category=design">设计</Link>
-          </li>
-          <li>
-            <Link to="/?category=language">外语</Link>
-          </li>
-          <li>
-            <Link to="/?category=gossip">杂谈</Link>
-          </li>
+          </li> */}
+          {cates.map((el) => (
+            <li key={el.id}>
+              <Link to={`/?category=${el.key}`}>{el.label}</Link>
+            </li>
+          ))}
         </StyledNavbar>
         <UserNav>
           <li>
             <FaBell />
           </li>
-          <li>
-            <Details>
-              <summary>
-                <FaPlus />
-                <span className="dropdown-caret" />
-              </summary>
-              <DropdownMenu>
-                <Link
-                  to="publish"
-                  onClick={() => handleDropdownClick('publish')}
-                  className="dropdown-item"
-                >
-                  发布文章
-                </Link>
-              </DropdownMenu>
-            </Details>
-          </li>
+          {currentUser && (
+            <li>
+              <Details>
+                <summary>
+                  <FaPlus />
+                  <span className="dropdown-caret" />
+                </summary>
+                <DropdownMenu>
+                  <Link
+                    to="publish"
+                    onClick={handleDropdownClick}
+                    className="dropdown-item"
+                  >
+                    发布文章
+                  </Link>
+                </DropdownMenu>
+              </Details>
+            </li>
+          )}
           <li>
             {currentUser ? (
               <Details>
                 <summary>
+                  <span className="name">{currentUser.username}</span>
                   <Avatar size="small" src={avatarImg} />
                   <span className="dropdown-caret" />
                 </summary>
