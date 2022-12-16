@@ -42,24 +42,7 @@ export function AuthContextProvider({ children }) {
   useEffect(() => {
     localStorage.setItem('blog_user', JSON.stringify(currentUser))
   }, [currentUser])
-  /**
-   * 登录方法
-   * @param {Object} inputs 登录表单信息
-   */
-  const login = async (inputs) => {
-    const data = await fetch('/auth/login', {
-      method: 'POST',
-      credentials: 'include', // 允许客户端保存cookie
-      headers: new Headers({
-        'Content-Type': 'application/json',
-      }),
-      body: JSON.stringify(inputs),
-    }).then((res) => res.json())
-    if (data.status === 'success') {
-      setCurrentUser(data.result.data)
-      showToast(data.message, 'success')
-    }
-  }
+
   /**
    * 退出方法
    */
@@ -68,12 +51,17 @@ export function AuthContextProvider({ children }) {
     if (data.status === 'success') {
       setCurrentUser(null)
       showToast(data.message, 'warn')
+      return true
     }
+    showToast(data.message)
+    return false
   }
 
   // 此上下文容器提供了当前登录用户信息,登录和退出方法
   return (
-    <AuthContext.Provider value={{ currentUser, login, logout, showToast }}>
+    <AuthContext.Provider
+      value={{ currentUser, setCurrentUser, logout, showToast }}
+    >
       {children}
     </AuthContext.Provider>
   )

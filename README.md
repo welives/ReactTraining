@@ -81,6 +81,12 @@ npm i express mysql
 ```
 
 ## 一些关于mysql包的占位符 ?和?? 的踩坑记录
+> 对象会被转换为占位符上的可枚举属性的键值对, 例如
+```js
+// SELECT * FROM users WHERE `email` = '10000@qq.com' AND `username` = 'jandan'
+db.format('SELECT * FROM users WHERE ? AND ?', [{email: '10000@qq.com'}, {username: 'jandan'}])
+```
+
 > 字段名如果和mysql的保留字或关键字冲突的时候要用反引号包裹起来
 ```js
 db.format('SELECT * FROM categories WHERE `key` = ?', ['gossip'])

@@ -18,7 +18,7 @@ export default function Navbar() {
   const [cates, setCates] = useState([])
   useEffect(() => {
     ;(async () => {
-      const data = await fetch('/category/list').then((res) => res.json())
+      const data = await fetch('/category/list?pid=0').then((res) => res.json())
       if (data.status === 'success') {
         setCates(data.result.data)
       }

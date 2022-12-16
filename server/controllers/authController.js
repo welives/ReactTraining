@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken')
+const userService = require('../services/userService')
+const catchAsync = require('../utils/catchAsync')
 const AppError = require('../utils/appError')
-const db = require('../db')
 
 /**
  * 生成token签名
@@ -43,7 +44,7 @@ exports.sendToken = (user, statusCode, message, res) => {
 /**
  * 验证token
  */
-exports.authCheck = (req, res, next) => {
+exports.authCheck = catchAsync(async (req, res, next) => {
   // 1) 获取token
   const token =
     req.headers.authorization && req.headers.authorization.startsWith('Bearer')
@@ -54,13 +55,8 @@ exports.authCheck = (req, res, next) => {
   // 2) 验证token
   const decode = jwt.verify(token, process.env.JWT_SECRET)
   // 3) 检查token所携带的用户信息
-  const sql = 'SELECT * FROM users'
-  const where = db.format(' WHERE id = ?', decode.id)
-  db.query(sql + where, (err, result) => {
-    if (err) return next(new AppError('数据库操作错误', 500))
-    if (result.length === 0) return next(new AppError('用户不存在', 404))
-    // 传递用户信息给下一个中间件
-    req.user = result[0]
-    next()
-  })
-}
+  const result = await userService.findOne({ id: decode.id })
+  // 传递用户信息给下一个中间件
+  req.user = result
+  next()
+})

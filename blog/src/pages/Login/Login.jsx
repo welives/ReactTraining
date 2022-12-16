@@ -5,7 +5,7 @@ import Container from './style'
 
 export default function Login() {
   const navigate = useNavigate()
-  const { currentUser, login, showToast } = useContext(AuthContext)
+  const { currentUser, setCurrentUser, showToast } = useContext(AuthContext)
   useEffect(() => {
     if (currentUser) {
       navigate('/')
@@ -47,10 +47,21 @@ export default function Login() {
   const handleSubmit = async (event) => {
     event.preventDefault()
     if (handleValidation()) {
-      await login(values)
-      setTimeout(() => {
-        navigate('/')
-      }, 500)
+      const data = await fetch('/auth/login', {
+        method: 'POST',
+        credentials: 'include', // 允许客户端保存cookie
+        headers: new Headers({
+          'Content-Type': 'application/json',
+        }),
+        body: JSON.stringify(values),
+      }).then((res) => res.json())
+      if (data.status === 'success') {
+        setCurrentUser(data.result.data)
+        showToast(data.message, 'success')
+        setTimeout(() => {
+          navigate('/')
+        }, 500)
+      }
     }
   }
   return (

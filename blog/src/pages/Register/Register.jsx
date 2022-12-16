@@ -1,76 +1,80 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { toast } from 'react-toastify'
+import { AuthContext } from '../../context/authContext'
 import Container from './style'
 
 export default function Register() {
   const navigate = useNavigate()
+  const { currentUser, setCurrentUser, showToast } = useContext(AuthContext)
   useEffect(() => {
-    if (localStorage.getItem('blog_user')) {
+    if (currentUser) {
       navigate('/')
     }
   }, [])
-  const toastOptions = {
-    position: 'bottom-right',
-    autoClose: 1000,
-    pauseOnHover: true,
-    draggable: true,
-    theme: 'dark',
-  }
   const [values, setValues] = useState({
     username: '',
     email: '',
     password: '',
     confirmPassword: '',
   })
+  /**
+   * 表单输入变化
+   * @param {Object} event
+   */
   const handleChange = (event) => {
     setValues({ ...values, [event.target.name]: event.target.value })
   }
+  /**
+   * 表单校验
+   * @returns
+   */
   const handleValidation = () => {
     const { username, email, password, confirmPassword } = values
     if (!username) {
-      toast.error('请输入用户名', toastOptions)
+      showToast('请输入用户名')
       document.querySelector('input[name="username"]').focus()
       return false
     }
     if (!email) {
-      toast.error('请输入邮箱', toastOptions)
+      showToast('请输入邮箱')
       document.querySelector('input[name="email"]').focus()
       return false
     }
     if (password.length < 8) {
-      toast.error('密码至少8个字符', toastOptions)
+      showToast('密码至少8个字符')
       document.querySelector('input[name="password"]').focus()
       return false
     }
     if (password !== confirmPassword) {
-      toast.error('两次输入的密码不一致', toastOptions)
+      showToast('两次输入的密码不一致')
       document.querySelector('input[name="confirmPassword"]').focus()
       return false
     }
 
     return true
   }
+  /**
+   * 表单提交
+   * @param {Object} event
+   */
   const handleSubmit = async (event) => {
     event.preventDefault()
     if (handleValidation()) {
-      fetch('/auth/register', {
+      const data = await fetch('/auth/register', {
         method: 'POST',
         credentials: 'include', // 允许客户端保存cookie
         headers: new Headers({
           'Content-Type': 'application/json',
         }),
-        body: JSON.stringify({ ...values }),
-      }).then(async (res) => {
-        const data = await res.json()
-        if (data.status === 'success') {
-          toast.success(data.message, toastOptions)
-          localStorage.setItem('blog_user', JSON.stringify(data.result.data))
-          setTimeout(() => {
-            navigate('/')
-          }, 1000)
-        }
-      })
+        body: JSON.stringify(values),
+      }).then((res) => res.json())
+      if (data.status === 'success') {
+        setCurrentUser(data.result.data)
+        showToast(data.message, 'success')
+        setTimeout(() => {
+          navigate('/')
+        }, 500)
+      }
     }
   }
   return (

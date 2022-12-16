@@ -1,64 +1,53 @@
 const bcrypt = require('bcryptjs')
 const validator = require('validator')
-const AppError = require('../utils/appError')
 const Auth = require('./authController')
-const db = require('../db')
+const userService = require('../services/userService')
+const catchAsync = require('../utils/catchAsync')
+const AppError = require('../utils/appError')
 
 /**
  * 注册
  */
-exports.register = (req, res, next) => {
-  const { username, email, password } = req.body
+exports.register = catchAsync(async (req, res, next) => {
+  const { username, email } = req.body
   if (!validator.isEmail(email))
     return next(new AppError('邮箱格式不正确', 400))
 
-  // 1. 先查出是否被占用
-  let sql = 'SELECT * FROM users WHERE email = ? OR username = ?'
-  db.query(sql, [email, username], (err, result) => {
-    if (err) return next(new AppError('数据库操作错误', 500))
-    if (result.length) return next(new AppError('用户已存在', 409))
-
-    // 2. 没被占用就对提交上来的密码进行加密
-    const hashPassword = bcrypt.hashSync(password, 12)
-    sql =
-      'INSERT INTO users(`username`, `email`, `password`, `created_at`) VALUES(?)'
-    const values = [username, email, hashPassword, new Date()]
-    // 3. 插入一条新记录
-    db.query(sql, [values], (err, result) => {
-      if (err) return next(new AppError('数据库操作错误', 500))
-      Auth.sendToken(
-        { id: result.insertId, username, email },
-        201,
-        '注册成功',
-        res
-      )
+  // 1. 先查出是否已存在
+  if (await userService.isExist({ username, email })) {
+    return next(new AppError('用户名或邮箱已被占用', 409))
+  } else {
+    // 没被占用就创建一个新用户
+    const hashPassword = bcrypt.hashSync(req.body.password, 12)
+    const result = await userService.createUser({
+      ...req.body,
+      password: hashPassword,
     })
-  })
-}
+    Auth.sendToken(
+      { id: result.insertId, username, email },
+      201,
+      '注册成功',
+      res
+    )
+  }
+})
 
 /**
  * 登录
  */
-exports.login = (req, res, next) => {
+exports.login = catchAsync(async (req, res, next) => {
   if (!validator.isEmail(req.body.email))
     return next(new AppError('邮箱格式不正确', 400))
 
-  // 1. 先查找是否有该用户
-  const sql = 'SELECT * FROM users WHERE email = ?'
-  db.query(sql, req.body.email, (err, result) => {
-    if (err) return next(new AppError('数据库操作错误', 500))
-    if (result.length === 0) return next(new AppError('用户不存在', 404))
-
-    // 2. 如果有的话就进行密码比对
-    const isPasswordCorrect = bcrypt.compareSync(
-      req.body.password,
-      result[0].password
-    )
-    if (!isPasswordCorrect) return next(new AppError('邮箱或密码不正确', 404))
-    const { password, ...other } = result[0]
-    Auth.sendToken(other, 200, '登陆成功', res)
-  })
-}
+  const result = await userService.findOne({ email: req.body.email })
+  const isPasswordCorrect = bcrypt.compareSync(
+    req.body.password,
+    result.password
+  )
+  if (!isPasswordCorrect) return next(new AppError('邮箱或密码不正确', 404))
+  const { password, ...other } = result
+  Auth.sendToken(other, 200, '登陆成功', res)
+})
 
 /**
  * 退出

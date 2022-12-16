@@ -3,7 +3,7 @@ const postController = require('../controllers/postController')
 
 const router = express.Router()
 
-router.route('/list').get(postController.getPosts)
+router.route('/list').get(postController.getList)
 router.route('/recommend').get(postController.getRecommend)
 router.route('/:id').get(postController.getPost)
 
