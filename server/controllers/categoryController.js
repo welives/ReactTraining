@@ -9,6 +9,7 @@ exports.getList = catchAsync(async (req, res) => {
   const result = await categoryService.select(req.query)
   res.status(200).json({
     status: 'success',
+    message: 'ok',
     result: { data: result },
   })
 })
@@ -21,6 +22,7 @@ exports.getOneById = catchAsync(async (req, res, next) => {
   const result = await categoryService.findOne({ id: req.params.id })
   res.status(200).json({
     status: 'success',
+    message: 'ok',
     result: { data: result },
   })
 })

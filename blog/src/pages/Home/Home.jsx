@@ -18,14 +18,6 @@ export default function Home() {
     })()
   }, [category])
 
-  // const posts = [
-  //   {
-  //     id: 1,
-  //     title: 'Lorem ipsum dolor sit amet consectetur adipisicing elit',
-  //     content: 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. A possimus excepturi aliquid nihil cumque ipsam facere aperiam at! Ea dolorem ratione sit debitis deserunt repellendus numquam ab vel perspiciatis corporis!',
-  //     cover: 'https://images.pexels.com/photos/7008010/pexels-photo-7008010.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-  //   },
-  // ]
   return (
     <section>
       <Container className="container">

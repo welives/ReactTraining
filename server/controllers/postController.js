@@ -9,6 +9,7 @@ exports.getList = catchAsync(async (req, res) => {
   const result = await postService.getPosts(req.query)
   res.status(200).json({
     status: 'success',
+    message: 'ok',
     result: { data: result },
   })
 })
@@ -21,9 +22,15 @@ exports.getPost = catchAsync(async (req, res, next) => {
   const result = await postService.getPost(req.params.id)
   res.status(200).json({
     status: 'success',
+    message: 'ok',
     result: { data: result.length ? result[0] : null },
   })
 })
+
+/**
+ * 新增文章
+ */
+exports.createPost = catchAsync(async (req, res, next) => {})
 
 /**
  * 相关推荐
@@ -32,6 +39,23 @@ exports.getRecommend = catchAsync(async (req, res) => {
   const result = await postService.getRecommend(req.query)
   res.status(200).json({
     status: 'success',
+    message: 'ok',
+    result: { data: result },
+  })
+})
+
+/**
+ * 删除文章
+ */
+exports.deletePost = catchAsync(async (req, res, next) => {
+  if (!req.params.id) return next(new AppError('缺少id', 400))
+  const result = await postService.deleteOne({
+    id: req.params.id,
+    uid: req.user.id,
+  })
+  res.status(200).json({
+    status: 'success',
+    message: 'ok',
     result: { data: result },
   })
 })

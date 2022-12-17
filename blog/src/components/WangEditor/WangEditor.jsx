@@ -1,18 +1,36 @@
 import React, { useState, useEffect } from 'react'
 import { Editor, Toolbar } from '@wangeditor/editor-for-react'
 import '@wangeditor/editor/dist/css/style.css'
+import PropTypes from 'prop-types'
 
-export default function WangEditor() {
+WangEditor.propTypes = {
+  html: PropTypes.string,
+  setHtml: PropTypes.func,
+}
+
+WangEditor.defaultProps = {
+  html: '',
+  setHtml: () => {},
+}
+
+/**
+ * 封装wangEditor， 通过父组件传入的props进行修改富文本内容
+ * @param {Object} props
+ * @returns
+ */
+function WangEditor({ html, setHtml }) {
   const [editor, setEditor] = useState(null) // 存储 editor 实例
-  const [html, setHtml] = useState('')
 
   const toolbarConfig = {}
   const editorConfig = {
     placeholder: '请输入内容...',
-  }
-
-  const handleEditorChange = (e) => {
-    setHtml(e.getHtml())
+    autoFocus: false,
+    onCreated: (editor) => {
+      setEditor(editor)
+    },
+    onChange: (editor) => {
+      setHtml(editor.getHtml())
+    },
   }
 
   // 及时销毁 editor
@@ -32,13 +50,12 @@ export default function WangEditor() {
         style={{ borderBottom: '1px solid #ccc' }}
       />
       <Editor
-        defaultConfig={editorConfig}
         value={html}
-        onCreated={setEditor}
-        onChange={handleEditorChange}
+        defaultConfig={editorConfig}
         mode="default"
-        style={{ height: '300px' }}
+        style={{ height: '300px', overflowY: 'hidden' }}
       />
     </div>
   )
 }
+export default WangEditor

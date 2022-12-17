@@ -19,7 +19,7 @@ export default function Register() {
   })
   /**
    * 表单输入变化
-   * @param {Object} event
+   * @param {InputEvent} event
    */
   const handleChange = (event) => {
     setValues({ ...values, [event.target.name]: event.target.value })
@@ -55,7 +55,7 @@ export default function Register() {
   }
   /**
    * 表单提交
-   * @param {Object} event
+   * @param {SubmitEvent} event
    */
   const handleSubmit = async (event) => {
     event.preventDefault()

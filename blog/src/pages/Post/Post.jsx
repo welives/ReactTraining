@@ -26,6 +26,11 @@ export default function Post() {
       }
     })()
   }, [postId])
+  const handleDeletePost = async (e) => {
+    await fetch(`/post/${e.target.dataset.id}`, { method: 'DELETE' }).then(
+      (res) => res.json()
+    )
+  }
   return (
     <section>
       <Container className="container">
@@ -39,12 +44,12 @@ export default function Post() {
               <h6>{post.author}</h6>
               <span>发布于 {dayjs(post.created_at).fromNow()}</span>
             </div>
-            {currentUser.id === post.uid && (
+            {currentUser && currentUser.id === post.uid && (
               <div className="edit">
-                <Link>
+                <Link to={`/publish?edit=${post.id}`} state={post}>
                   <AiFillEdit />
                 </Link>
-                <AiOutlineDelete />
+                <AiOutlineDelete onClick={handleDeletePost} data-id={post.id} />
               </div>
             )}
           </div>

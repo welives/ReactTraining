@@ -26,6 +26,10 @@ export default function Navbar() {
   }, [])
 
   const { currentUser, logout } = useContext(AuthContext)
+  /**
+   * 下拉项点击事件
+   * @param {String} e
+   */
   const handleDropdownClick = (e) => {
     document.querySelector('details[open]').removeAttribute('open')
     switch (e) {

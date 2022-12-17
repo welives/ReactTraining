@@ -30,7 +30,7 @@ AuthContextProvider.propTypes = {
 
 /**
  * 登录状态提供组件
- * @param {any} children
+ * @param {HTMLElement} children
  * @returns
  */
 export function AuthContextProvider({ children }) {

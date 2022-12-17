@@ -5,7 +5,7 @@ export const ImageBox = styled(ImgBox)`
   padding-top: ${(props) => (props.top ? `${props.top}%` : '50%')};
 `
 
-export const Container = styled.div`
+export const Container = styled.form`
   margin-top: 50px;
   display: grid;
   grid-template-columns: 80% 20%;
@@ -55,6 +55,14 @@ export const UploadBox = styled.div`
   margin-left: 20px;
   display: flex;
   flex-direction: column;
+  .tips {
+    font-size: 12px;
+    color: #888;
+  }
+  img {
+    width: 100%;
+    height: 100%;
+  }
   button {
     margin-top: auto;
   }

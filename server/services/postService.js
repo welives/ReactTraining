@@ -37,6 +37,32 @@ exports.getPost = (id) => {
   })
 }
 
+exports.createPost = () => {
+  return new Promise((resolve, reject) => {
+    resolve()
+    // db.query(sql + where, (err, res) => {
+    //   if (err) return reject(new AppError('数据库操作错误', 500))
+    //   resolve(res)
+    // })
+  })
+}
+
+/**
+ * 删除文章
+ * @param {Object} opt
+ * @returns
+ */
+exports.deleteOne = (opt = {}) => {
+  const sql = 'DELETE FROM posts'
+  const where = db.format(' WHERE ? AND ?', [{ id: opt.id }, { uid: opt.uid }])
+  return new Promise((resolve, reject) => {
+    db.query(sql + where, (err, res) => {
+      if (err) return reject(new AppError('数据库操作错误', 500))
+      resolve(res)
+    })
+  })
+}
+
 /**
  * 相关推荐
  */

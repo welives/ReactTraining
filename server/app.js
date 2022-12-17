@@ -26,6 +26,7 @@ app.use(cookieParser())
 // 静态资源
 app.use(express.static(path.resolve(__dirname, 'public')))
 
+app.use('/api/upload', require('./routes/uploadRoutes'))
 app.use('/api/auth', require('./routes/userRoutes'))
 app.use('/api/post', require('./routes/postRoutes'))
 app.use('/api/category', require('./routes/categoryRoutes'))

@@ -37,6 +37,7 @@ module.exports = {
     'react/jsx-no-constructed-context-values': 0,
     'react-hooks/exhaustive-deps': 0,
     camelcase: 1,
+    'no-shadow': 0,
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
     'no-console': 0,
     'global-require': 0,
