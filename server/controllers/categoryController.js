@@ -17,7 +17,7 @@ exports.getList = catchAsync(async (req, res) => {
 /**
  * 根据id获取单个分类
  */
-exports.getOneById = catchAsync(async (req, res, next) => {
+exports.getCateById = catchAsync(async (req, res, next) => {
   if (!req.params.id) return next(new AppError('缺少id', 400))
   const result = await categoryService.findOne({ id: req.params.id })
   res.status(200).json({

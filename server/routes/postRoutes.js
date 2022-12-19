@@ -9,7 +9,7 @@ router.route('/recommend').get(postController.getRecommend)
 router.route('/').post(Auth.authCheck, postController.createPost)
 router
   .route('/:id')
-  .get(postController.getPost)
+  .get(postController.getPostById)
   .delete(Auth.authCheck, postController.deletePost)
 
 module.exports = router

@@ -1,7 +1,66 @@
-import React, { useState, useEffect, useImperativeHandle } from 'react'
+import React from 'react'
 import { Editor, Toolbar } from '@wangeditor/editor-for-react'
 import '@wangeditor/editor/dist/css/style.css'
 import PropTypes from 'prop-types'
+
+/**
+ * 封装wangEditor， 通过父组件传入的props进行修改富文本内容
+ * @param {Object} props
+ * @returns
+ */
+class WangEditor extends React.Component {
+  toolbarConfig = {}
+
+  editorConfig = {
+    placeholder: '请输入内容...',
+    autoFocus: false,
+    onCreated: (editor) => {
+      this.setState({ editor })
+    },
+    onChange: (editor) => {
+      this.props.setHtml(editor.getHtml())
+    },
+  }
+
+  constructor(props) {
+    super(props)
+    this.state = {
+      editor: null,
+    }
+    this.setFocus = this.setFocus.bind(this)
+  }
+
+  setFocus() {
+    if (this.state.editor == null) return
+    this.state.editor.focus()
+  }
+
+  // 及时销毁 editor
+  componentWillUnmount() {
+    if (this.state.editor == null) return
+    this.state.editor.destroy()
+    this.setState({ editor: null })
+  }
+
+  render() {
+    return (
+      <div style={{ border: '1px solid #ccc', zIndex: 100, marginTop: '15px' }}>
+        <Toolbar
+          editor={this.state.editor}
+          defaultConfig={this.toolbarConfig}
+          mode="default"
+          style={{ borderBottom: '1px solid #ccc' }}
+        />
+        <Editor
+          value={this.props.html}
+          defaultConfig={this.editorConfig}
+          mode="default"
+          style={{ height: '300px', overflowY: 'hidden' }}
+        />
+      </div>
+    )
+  }
+}
 
 WangEditor.propTypes = {
   html: PropTypes.string,
@@ -13,56 +72,4 @@ WangEditor.defaultProps = {
   setHtml: () => {},
 }
 
-/**
- * 封装wangEditor， 通过父组件传入的props进行修改富文本内容
- * @param {Object} props
- * @returns
- */
-function WangEditor({ html, setHtml }, ref) {
-  const [editor, setEditor] = useState(null) // 存储 editor 实例
-
-  const toolbarConfig = {}
-  const editorConfig = {
-    placeholder: '请输入内容...',
-    autoFocus: false,
-    onCreated: (editor) => {
-      setEditor(editor)
-    },
-    onChange: (editor) => {
-      setHtml(editor.getHtml())
-    },
-  }
-  // 通过 useImperativeHandle 把子组件的方法暴露给父组件
-  useImperativeHandle(ref, () => ({
-    focus: () => {
-      if (editor == null) return
-      editor.focus()
-    },
-  }))
-
-  // 及时销毁 editor
-  useEffect(() => {
-    return () => {
-      if (editor == null) return
-      editor.destroy()
-      setEditor(null)
-    }
-  }, [editor])
-  return (
-    <div style={{ border: '1px solid #ccc', zIndex: 100, marginTop: '15px' }}>
-      <Toolbar
-        editor={editor}
-        defaultConfig={toolbarConfig}
-        mode="default"
-        style={{ borderBottom: '1px solid #ccc' }}
-      />
-      <Editor
-        value={html}
-        defaultConfig={editorConfig}
-        mode="default"
-        style={{ height: '300px', overflowY: 'hidden' }}
-      />
-    </div>
-  )
-}
-export default React.forwardRef(WangEditor)
+export default WangEditor

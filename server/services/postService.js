@@ -2,37 +2,54 @@ const AppError = require('../utils/appError')
 const db = require('../db')
 
 /**
- * 获取文章列表
+ * 查询多个
  */
-exports.getPosts = (otp = {}) => {
-  const sql =
-    'SELECT posts.*, users.username AS author FROM posts JOIN users ON posts.user_id = users.id'
-  const where = otp.category
-    ? db.format(
-        ' JOIN categories ON posts.category_id = categories.id WHERE `key` = ?',
-        otp.category
-      )
+exports.select = (opt = {}) => {
+  const sql = 'SELECT * FROM posts JOIN users ON posts.user_id = users.id'
+  const where = opt.category_key
+    ? db.format(' WHERE posts.?', [{ category_key: opt.category_key }])
     : ''
   const order = ' ORDER BY posts.id DESC' // 倒序
+  const options = {
+    sql: sql + where + order,
+    nestTables: true,
+  }
   return new Promise((resolve, reject) => {
-    db.query(sql + where + order, (err, res) => {
+    db.query(options, (err, res) => {
       if (err) return reject(new AppError('数据库操作错误', 500))
-      resolve(res)
+      const posts = res.map((el) => {
+        return {
+          ...el.posts,
+          author: { id: el.users.id, username: el.users.username },
+        }
+      })
+      resolve(posts)
     })
   })
 }
 
 /**
- * 获取单篇文章
+ * 查询单个
+ * @param {Object} opt 查询条件
+ * @returns
  */
-exports.getPost = (id) => {
-  const sql =
-    'SELECT posts.*, users.username AS author FROM posts JOIN users ON posts.user_id = users.id'
-  const where = db.format(' WHERE posts.id = ?', id)
+exports.findOne = (opt = {}) => {
+  const sql = 'SELECT * FROM posts JOIN users ON posts.user_id = users.id'
+  const where = db.format(' WHERE posts.?', [opt])
+  const options = {
+    sql: sql + where,
+    nestTables: true,
+  }
   return new Promise((resolve, reject) => {
-    db.query(sql + where, (err, res) => {
+    db.query(options, (err, res) => {
       if (err) return reject(new AppError('数据库操作错误', 500))
-      resolve(res)
+      if (res.length === 0) return reject(new AppError('资源不存在', 404))
+      const { posts, users } = res[0]
+      posts.author = {
+        id: users.id,
+        username: users.username,
+      }
+      resolve(posts)
     })
   })
 }
@@ -98,28 +115,34 @@ exports.deleteOne = (opt = {}) => {
  * 相关推荐
  */
 exports.getRecommend = (opt = {}) => {
-  let where = ' WHERE 1'
-  // 根据文章的作者或分类进行推荐
-  if (opt.user_id && opt.category_id) {
-    where += db.format(' AND user_id = ? OR category_id = ?', [
-      opt.user_id,
-      opt.category_id,
-    ])
-    // 根据文章作者进行推荐
-  } else if (opt.user_id) {
-    where += db.format(' AND user_id = ?', opt.user_id)
-    // 根据文章分类进行推荐
-  } else if (opt.category_id) {
-    where += db.format(' AND category_id = ?', opt.category_id)
-  }
-  const sql =
-    'SELECT posts.*, users.username AS author FROM posts JOIN users ON posts.user_id = users.id'
+  const whereArr = Object.keys(opt).reduce((prev, cur) => {
+    return [...prev, [cur, opt[cur]]]
+  }, [])
+  let where = ''
+  whereArr.map((el) => {
+    where += this.where(el)
+  })
+  where = where.replace(/\bWHERE\b/g, (match, index, str) =>
+    index === 1 ? match : 'OR'
+  )
+  const sql = 'SELECT * FROM posts JOIN users ON posts.user_id = users.id'
   const limit = ' LIMIT 0,5' // 只要前5条
   const order = ' ORDER BY posts.id DESC' // 倒序
+  const options = {
+    sql: sql + where + order + limit,
+    nestTables: true,
+  }
   return new Promise((resolve, reject) => {
-    db.query(sql + where + order + limit, (err, res) => {
+    db.query(options, (err, res) => {
       if (err) return reject(new AppError('数据库操作错误', 500))
-      opt.id ? resolve(res.filter((el) => el.id != opt.id)) : resolve(res)
+      if (res.length === 0) return reject(new AppError('暂无推荐', 404))
+      const posts = res.map((el) => {
+        return {
+          ...el.posts,
+          author: { id: el.users.id, username: el.users.username },
+        }
+      })
+      resolve(posts)
     })
   })
 }

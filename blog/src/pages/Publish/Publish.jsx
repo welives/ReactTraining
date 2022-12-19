@@ -94,7 +94,7 @@ export default function Publish() {
    */
   const handleValidation = () => {
     const { title, categoryKey, cover } = form
-    if (!title) {
+    if (!title.trim()) {
       showToast('请输入标题')
       document.querySelector('input[name="title"]').focus()
       return false
@@ -103,9 +103,9 @@ export default function Publish() {
       showToast('请选择分类')
       return false
     }
-    if (!html) {
+    if (!html.trim()) {
       showToast('请输入文章内容')
-      editorRef.current.focus()
+      editorRef.current.setFocus()
       return false
     }
     if (!cover) {

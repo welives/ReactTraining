@@ -3,6 +3,6 @@ const cateController = require('../controllers/categoryController')
 const router = express.Router()
 
 router.route('/list').get(cateController.getList)
-router.route('/:id').get(cateController.getOneById)
+router.route('/:id').get(cateController.getCateById)
 
 module.exports = router

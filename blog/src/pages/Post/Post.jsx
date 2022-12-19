@@ -16,13 +16,13 @@ export default function Post() {
   const postId = location.pathname.split('/')[2]
   useEffect(() => {
     ;(async () => {
-      let data = await fetch(`/post/${postId}`).then((res) => res.json())
-      if (data.status === 'success') {
-        setPost(data.result.data)
-        const { id, user_id, category_id } = data.result.data
-        const url = `/post/recommend?id=${id}&user_id=${user_id}&category_id=${category_id}`
-        data = await fetch(url).then((res) => res.json())
-        setRecommends(data.result.data)
+      let res = await fetch(`/post/${postId}`).then((res) => res.json())
+      if (res.status === 'success') {
+        setPost(res.result.data)
+        const { id, user_id: userId, category_id: categoryId } = res.result.data
+        const url = `/post/recommend?id=${id}&user_id=${userId}&category_id=${categoryId}`
+        res = await fetch(url).then((res) => res.json())
+        setRecommends(res.result.data)
       }
     })()
   }, [postId])
@@ -41,7 +41,7 @@ export default function Post() {
           <div className="user">
             <Avatar src={avatarImg} />
             <div>
-              <h6>{post.author}</h6>
+              <h6>{post.author?.username}</h6>
               <span>发布于 {dayjs(post.created_at).fromNow()}</span>
             </div>
             {currentUser && currentUser.id === post.user_id && (
