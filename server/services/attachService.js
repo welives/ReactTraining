@@ -1,34 +1,51 @@
-const AppError = require('../utils/appError')
 const db = require('../db')
+const uuid = require('uuid')
+const path = require('path')
+const sizeOf = require('image-size')
+const AppError = require('../utils/appError')
 
 /**
- * 查询多个
+ * 新增
+ * @param {Object} file
+ * @param {Object} opt
+ * @returns
  */
-exports.select = (opt = {}) => {
-  // 将查询条件整理成数组, 数组的排列规则按照下面的 where方法
-  const whereArr = Object.keys(opt).reduce((prev, cur) => {
-    const curTemp =
-      cur === 'label' ? [cur, 'LIKE', `%${opt[cur]}%`] : [cur, opt[cur]]
-    return [...prev, curTemp]
-  }, [])
-  let where = ''
-  // 拼接查询条件字符串
-  whereArr.map((el) => {
-    where += this.where(el)
-  })
-  /**
-   * 第二个回调函数的参数说明:
-   * match 是当前匹配项
-   * index 是当前匹配项在字符串中的位置
-   * str 是原始字符串
-   */
-  // 把多余的 WHERE 关键字替换成 AND
-  where = where.replace(/\bWHERE\b/g, (match, index, str) =>
-    index === 1 ? match : 'AND'
-  )
-  const sql = 'SELECT * FROM categories'
+exports.create = (file, opt = {}) => {
+  let columns, values
+  const savePath = path.join(path.basename(file.destination), file.filename)
+  if (opt.type === 'image') {
+    const { width, height } = sizeOf(file.path)
+    columns = [
+      'uuid',
+      'type',
+      'mime_type',
+      'size',
+      'width',
+      'height',
+      'original_name',
+      'save_path',
+      'user_id',
+      'created_at',
+    ]
+    values = [
+      uuid.v1(),
+      opt.type,
+      file.mimetype,
+      file.size,
+      width,
+      height,
+      file.originalname,
+      savePath,
+      opt.user_id,
+      new Date(),
+    ]
+  }
+  const sql = db.format('INSERT INTO attachments(??) VALUES(?)', [
+    columns,
+    values,
+  ])
   return new Promise((resolve, reject) => {
-    db.query(sql + where, (err, res) => {
+    db.query(sql, (err, res) => {
       if (err) return reject(new AppError('数据库操作错误', 500))
       resolve(res)
     })
@@ -41,7 +58,7 @@ exports.select = (opt = {}) => {
  * @returns
  */
 exports.findOne = (opt = {}) => {
-  const sql = db.format('SELECT * FROM categories WHERE ?', [opt])
+  const sql = db.format('SELECT * FROM attachments WHERE ?', [opt])
   return new Promise((resolve, reject) => {
     db.query(sql, (err, res) => {
       if (err) return reject(new AppError('数据库操作错误', 500))

@@ -106,13 +106,13 @@ db.format(
   [['title', 'content'], '%测试%']
 )
 
-// SELECT `posts`.*, `users`.`username` AS `author` FROM posts JOIN users ON `posts`.`uid` = `users`.`id`
+// SELECT `posts`.*, `users`.`username` AS `author` FROM posts JOIN users ON `posts`.`user_id` = `users`.`id`
 db.format('SELECT ??.?, ?? AS ?? FROM posts JOIN users ON ?? ? ??', [
   'posts',
   mysql.raw('*'), // 最好不要用占位符来代替mysql的限定符或操作符,此处只是演示而已
   'users.username',
   'author',
-  'posts.uid',
+  'posts.user_id',
   mysql.raw('='), // 最好不要用占位符来代替mysql的限定符或操作符,此处只是演示而已
   'users.id',
 ])

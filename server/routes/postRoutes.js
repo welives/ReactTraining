@@ -5,10 +5,11 @@ const router = express.Router()
 
 router.route('/list').get(postController.getList)
 router.route('/recommend').get(postController.getRecommend)
+
+router.route('/').post(Auth.authCheck, postController.createPost)
 router
   .route('/:id')
   .get(postController.getPost)
-  .post(Auth.authCheck, postController.createPost)
   .delete(Auth.authCheck, postController.deletePost)
 
 module.exports = router

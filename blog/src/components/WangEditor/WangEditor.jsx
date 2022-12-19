@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useImperativeHandle } from 'react'
 import { Editor, Toolbar } from '@wangeditor/editor-for-react'
 import '@wangeditor/editor/dist/css/style.css'
 import PropTypes from 'prop-types'
@@ -18,7 +18,7 @@ WangEditor.defaultProps = {
  * @param {Object} props
  * @returns
  */
-function WangEditor({ html, setHtml }) {
+function WangEditor({ html, setHtml }, ref) {
   const [editor, setEditor] = useState(null) // 存储 editor 实例
 
   const toolbarConfig = {}
@@ -32,6 +32,13 @@ function WangEditor({ html, setHtml }) {
       setHtml(editor.getHtml())
     },
   }
+  // 通过 useImperativeHandle 把子组件的方法暴露给父组件
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      if (editor == null) return
+      editor.focus()
+    },
+  }))
 
   // 及时销毁 editor
   useEffect(() => {
@@ -58,4 +65,4 @@ function WangEditor({ html, setHtml }) {
     </div>
   )
 }
-export default WangEditor
+export default React.forwardRef(WangEditor)

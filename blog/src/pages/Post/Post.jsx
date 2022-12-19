@@ -19,8 +19,8 @@ export default function Post() {
       let data = await fetch(`/post/${postId}`).then((res) => res.json())
       if (data.status === 'success') {
         setPost(data.result.data)
-        const { id, uid, category_id } = data.result.data
-        const url = `/post/recommend?id=${id}&uid=${uid}&cid=${category_id}`
+        const { id, user_id, category_id } = data.result.data
+        const url = `/post/recommend?id=${id}&user_id=${user_id}&category_id=${category_id}`
         data = await fetch(url).then((res) => res.json())
         setRecommends(data.result.data)
       }
@@ -44,7 +44,7 @@ export default function Post() {
               <h6>{post.author}</h6>
               <span>发布于 {dayjs(post.created_at).fromNow()}</span>
             </div>
-            {currentUser && currentUser.id === post.uid && (
+            {currentUser && currentUser.id === post.user_id && (
               <div className="edit">
                 <Link to={`/publish?edit=${post.id}`} state={post}>
                   <AiFillEdit />

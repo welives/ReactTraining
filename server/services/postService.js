@@ -6,7 +6,7 @@ const db = require('../db')
  */
 exports.getPosts = (otp = {}) => {
   const sql =
-    'SELECT posts.*, users.username AS author FROM posts JOIN users ON posts.uid = users.id'
+    'SELECT posts.*, users.username AS author FROM posts JOIN users ON posts.user_id = users.id'
   const where = otp.category
     ? db.format(
         ' JOIN categories ON posts.category_id = categories.id WHERE `key` = ?',
@@ -27,7 +27,7 @@ exports.getPosts = (otp = {}) => {
  */
 exports.getPost = (id) => {
   const sql =
-    'SELECT posts.*, users.username AS author FROM posts JOIN users ON posts.uid = users.id'
+    'SELECT posts.*, users.username AS author FROM posts JOIN users ON posts.user_id = users.id'
   const where = db.format(' WHERE posts.id = ?', id)
   return new Promise((resolve, reject) => {
     db.query(sql + where, (err, res) => {
@@ -37,13 +37,41 @@ exports.getPost = (id) => {
   })
 }
 
-exports.createPost = () => {
+/**
+ * 新增
+ * @param {Object} opt
+ * @returns
+ */
+exports.createPost = (opt = {}) => {
+  const columns = [
+    'title',
+    'content',
+    'cover',
+    'cover_uuid',
+    'category_id',
+    'category_key',
+    'user_id',
+    'created_at',
+  ]
+  const values = [
+    opt.title,
+    opt.content,
+    opt.cover,
+    opt.coverUuid,
+    opt.categoryId,
+    opt.categoryKey,
+    opt.user_id,
+    new Date(),
+  ]
+  const sql = db.format('INSERT INTO attachments(??) VALUES(?)', [
+    columns,
+    values,
+  ])
   return new Promise((resolve, reject) => {
-    resolve()
-    // db.query(sql + where, (err, res) => {
-    //   if (err) return reject(new AppError('数据库操作错误', 500))
-    //   resolve(res)
-    // })
+    db.query(sql, (err, res) => {
+      if (err) return reject(new AppError('数据库操作错误', 500))
+      resolve(res)
+    })
   })
 }
 
@@ -54,7 +82,10 @@ exports.createPost = () => {
  */
 exports.deleteOne = (opt = {}) => {
   const sql = 'DELETE FROM posts'
-  const where = db.format(' WHERE ? AND ?', [{ id: opt.id }, { uid: opt.uid }])
+  const where = db.format(' WHERE ? AND ?', [
+    { id: opt.id },
+    { user_id: opt.user_id },
+  ])
   return new Promise((resolve, reject) => {
     db.query(sql + where, (err, res) => {
       if (err) return reject(new AppError('数据库操作错误', 500))
@@ -69,17 +100,20 @@ exports.deleteOne = (opt = {}) => {
 exports.getRecommend = (opt = {}) => {
   let where = ' WHERE 1'
   // 根据文章的作者或分类进行推荐
-  if (opt.uid && opt.cid) {
-    where += db.format(' AND uid = ? OR category_id = ?', [opt.uid, opt.cid])
+  if (opt.user_id && opt.category_id) {
+    where += db.format(' AND user_id = ? OR category_id = ?', [
+      opt.user_id,
+      opt.category_id,
+    ])
     // 根据文章作者进行推荐
-  } else if (opt.uid) {
-    where += db.format(' AND uid = ?', opt.uid)
+  } else if (opt.user_id) {
+    where += db.format(' AND user_id = ?', opt.user_id)
     // 根据文章分类进行推荐
-  } else if (opt.cid) {
-    where += db.format(' AND category_id = ?', opt.cid)
+  } else if (opt.category_id) {
+    where += db.format(' AND category_id = ?', opt.category_id)
   }
   const sql =
-    'SELECT posts.*, users.username AS author FROM posts JOIN users ON posts.uid = users.id'
+    'SELECT posts.*, users.username AS author FROM posts JOIN users ON posts.user_id = users.id'
   const limit = ' LIMIT 0,5' // 只要前5条
   const order = ' ORDER BY posts.id DESC' // 倒序
   return new Promise((resolve, reject) => {

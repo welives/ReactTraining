@@ -30,7 +30,14 @@ exports.getPost = catchAsync(async (req, res, next) => {
 /**
  * 新增文章
  */
-exports.createPost = catchAsync(async (req, res, next) => {})
+exports.createPost = catchAsync(async (req, res, next) => {
+  await postService.createPost({ ...req.body, user_id: req.user.id })
+  res.status(200).json({
+    status: 'success',
+    message: 'ok',
+    result: { data: null },
+  })
+})
 
 /**
  * 相关推荐
@@ -51,7 +58,7 @@ exports.deletePost = catchAsync(async (req, res, next) => {
   if (!req.params.id) return next(new AppError('缺少id', 400))
   const result = await postService.deleteOne({
     id: req.params.id,
-    uid: req.user.id,
+    user_id: req.user.id,
   })
   res.status(200).json({
     status: 'success',
