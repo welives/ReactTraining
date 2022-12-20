@@ -1,5 +1,6 @@
 const express = require('express')
 const helmet = require('helmet')
+const cors = require('cors')
 const morgan = require('morgan')
 const cookieParser = require('cookie-parser')
 const path = require('path')
@@ -14,6 +15,13 @@ app.use(helmet())
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'))
 }
+
+// 跨域处理
+app.use(cors())
+app.use((req, res, next) => {
+  res.header('Cross-Origin-Resource-Policy', 'cross-origin')
+  next()
+})
 
 // 解析json格式的请求体数据
 app.use(express.json())

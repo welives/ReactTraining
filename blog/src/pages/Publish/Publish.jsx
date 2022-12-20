@@ -9,6 +9,27 @@ import { Container, ContentBox, UploadBox } from './style'
 const { Option } = Select
 
 /**
+ * 获取图片真实url
+ * @param {String} path
+ * @returns
+ */
+const getImagePath = (path) => {
+  if (!path) return ''
+  return path.match(/^http(s)?/g) ? path : process.env.REACT_APP_CDN + path
+}
+
+/**
+ * 通过url得到File对象
+ * @param {String} url
+ * @returns
+ */
+const getImageFileFromUrl = async (url) => {
+  const fileName = url.substring(url.replace('\\', '/').lastIndexOf('/') + 1)
+  const bolb = await fetch(url).then((res) => res.blob())
+  return new File([bolb], fileName, { type: bolb.type })
+}
+
+/**
  * 获取图片的base64编码
  * @param {File} file
  * @param {Function} cb
@@ -71,6 +92,19 @@ export default function Publish() {
       coverUuid: state?.cover_uuid || '',
     })
     setHtml(state?.content || '')
+    // 图片回显
+    if (state && state.cover) {
+      ;(async () => {
+        const imgPath = getImagePath(state.cover)
+        const file = await getImageFileFromUrl(imgPath)
+        getBase64(file, (url) => {
+          setLoading(false)
+          setImageUrl(url)
+        })
+      })()
+    } else {
+      setImageUrl('')
+    }
   }, [state])
 
   /**

@@ -52,6 +52,66 @@ exports.findOne = (opt = {}) => {
 }
 
 /**
+ * 新增
+ * @param {Object} opt
+ * @returns
+ */
+exports.createOne = (opt = {}) => {
+  const columns = ['key', 'label', 'pid', 'created_at']
+  const values = [opt.key, opt.label, opt.pid ?? 0, new Date()]
+  const sql = db.format('INSERT INTO categories(??) VALUES(?)', [
+    columns,
+    values,
+  ])
+  return new Promise((resolve, reject) => {
+    db.query(sql, (err, res) => {
+      if (err) return reject(new AppError('数据库操作错误', 500))
+      resolve(res)
+    })
+  })
+}
+
+/**
+ * 修改单个
+ * @param {Object} opt
+ * @returns
+ */
+exports.updateOne = (opt = {}) => {
+  const columns = {
+    key: opt.key,
+    label: opt.label,
+    pid: opt.pid,
+    updated_at: new Date(),
+  }
+  for (const key in columns) {
+    if (!columns[key]) delete columns[key]
+  }
+  const where = { id: opt.id }
+  const sql = db.format('UPDATE categories SET ? WHERE ?', [columns, where])
+  return new Promise((resolve, reject) => {
+    db.query(sql, (err, res) => {
+      if (err) return reject(new AppError('数据库操作错误', 500))
+      resolve(res)
+    })
+  })
+}
+
+/**
+ * 删除单个
+ * @param {Number | String} id
+ * @returns
+ */
+exports.deleteById = (id) => {
+  const sql = db.format('DELETE FROM categories WHERE id = ?', id)
+  return new Promise((resolve, reject) => {
+    db.query(sql, (err, res) => {
+      if (err) return reject(new AppError('数据库操作错误', 500))
+      resolve(res)
+    })
+  })
+}
+
+/**
  * 构造查询条件
  * @param {Array} map
  * @returns

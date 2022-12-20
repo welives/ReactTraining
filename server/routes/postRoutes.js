@@ -10,6 +10,7 @@ router.route('/').post(Auth.authCheck, postController.createPost)
 router
   .route('/:id')
   .get(postController.getPostById)
+  .patch(Auth.authCheck, postController.updatePost)
   .delete(Auth.authCheck, postController.deletePost)
 
 module.exports = router

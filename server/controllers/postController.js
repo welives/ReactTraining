@@ -31,10 +31,9 @@ exports.getPostById = catchAsync(async (req, res, next) => {
  * 新增文章
  */
 exports.createPost = catchAsync(async (req, res, next) => {
-  const { title, content, cover, cover_uuid, category_id, category_key } =
-    req.body
-  if (title && content && cover && cover_uuid && category_id && category_key) {
-    let result = await postService.createPost({
+  const { title, content, cover, coverUuid, categoryId, categoryKey } = req.body
+  if (title && content && cover && coverUuid && categoryId && categoryKey) {
+    let result = await postService.createOne({
       ...req.body,
       user_id: req.user.id,
     })
@@ -47,6 +46,23 @@ exports.createPost = catchAsync(async (req, res, next) => {
   } else {
     return next(new AppError('参数不足', 400))
   }
+})
+
+/**
+ * 修改文章
+ */
+exports.updatePost = catchAsync(async (req, res, next) => {
+  if (!req.params.id) return next(new AppError('缺少id', 400))
+  let result = await postService.findOne({ id: req.params.id })
+  if (req.user.id !== result.user_id)
+    return next(new AppError('你无权修改此文章', 403))
+
+  postService.updateOne({ ...req.body, id: req.params.id })
+  res.status(200).json({
+    status: 'success',
+    message: 'ok',
+    result: { data: null },
+  })
 })
 
 /**

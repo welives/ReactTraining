@@ -3,6 +3,16 @@ import { Link, useLocation } from 'react-router-dom'
 import { Button } from 'antd'
 import { Container, PostItem } from './style'
 
+/**
+ * 获取图片真实url
+ * @param {String} path
+ * @returns
+ */
+const getImagePath = (path) => {
+  if (!path) return ''
+  return path.match(/^http(s)?/g) ? path : process.env.REACT_APP_CDN + path
+}
+
 export default function Home() {
   const [posts, setPosts] = useState([])
   const location = useLocation()
@@ -24,7 +34,7 @@ export default function Home() {
         {posts.map((el, index) => (
           <PostItem key={el.id}>
             <div className="imgBox">
-              <img src={el.cover} alt="" />
+              {el.cover && <img src={getImagePath(el.cover)} alt="" />}
             </div>
             <div className="content">
               <Link to={`/post/${el.id}`}>

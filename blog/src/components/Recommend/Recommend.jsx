@@ -11,6 +11,16 @@ Recommend.defaultProps = {
   posts: [],
 }
 
+/**
+ * 获取图片真实url
+ * @param {String} path
+ * @returns
+ */
+const getImagePath = (path) => {
+  if (!path) return ''
+  return path.match(/^http(s)?/g) ? path : process.env.REACT_APP_CDN + path
+}
+
 export default function Recommend({ posts }) {
   return (
     <Container>
@@ -20,7 +30,7 @@ export default function Recommend({ posts }) {
           <div className="item" key={el.id}>
             <Link to={`/post/${el.id}`}>
               <ImageBox top={70}>
-                <img src={el.cover} alt="" />
+                {el.cover && <img src={getImagePath(el.cover)} alt="" />}
               </ImageBox>
             </Link>
             <h2>{el.title}</h2>

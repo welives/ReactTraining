@@ -59,7 +59,7 @@ exports.findOne = (opt = {}) => {
  * @param {Object} opt
  * @returns
  */
-exports.createPost = (opt = {}) => {
+exports.createOne = (opt = {}) => {
   const columns = [
     'title',
     'content',
@@ -80,10 +80,36 @@ exports.createPost = (opt = {}) => {
     opt.user_id,
     new Date(),
   ]
-  const sql = db.format('INSERT INTO attachments(??) VALUES(?)', [
-    columns,
-    values,
-  ])
+  const sql = db.format('INSERT INTO posts(??) VALUES(?)', [columns, values])
+  console.log(sql)
+  return new Promise((resolve, reject) => {
+    db.query(sql, (err, res) => {
+      if (err) return reject(new AppError('数据库操作错误', 500))
+      resolve(res)
+    })
+  })
+}
+
+/**
+ * 修改单个
+ * @param {Object} opt
+ * @returns
+ */
+exports.updateOne = (opt = {}) => {
+  const columns = {
+    title: opt.title,
+    content: opt.content,
+    cover: opt.cover,
+    cover_uuid: opt.cover_uuid,
+    category_id: opt.category_id,
+    category_key: opt.category_key,
+    updated_at: new Date(),
+  }
+  for (const key in columns) {
+    if (!columns[key]) delete columns[key]
+  }
+  const where = { id: opt.id }
+  const sql = db.format('UPDATE posts SET ? WHERE ?', [columns, where])
   return new Promise((resolve, reject) => {
     db.query(sql, (err, res) => {
       if (err) return reject(new AppError('数据库操作错误', 500))
