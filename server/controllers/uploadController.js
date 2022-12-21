@@ -2,8 +2,8 @@ const fs = require('fs')
 const path = require('path')
 const multer = require('multer')
 const dayjs = require('dayjs')
+const uuid = require('uuid')
 const attachService = require('../services/attachService')
-const catchAsync = require('../utils/catchAsync')
 const AppError = require('../utils/appError')
 
 const storage = multer.diskStorage({
@@ -13,7 +13,7 @@ const storage = multer.diskStorage({
     cb(null, savePath)
   },
   filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-[${req.user.username}]-${file.originalname}`)
+    cb(null, uuid.v1() + path.extname(file.originalname))
   },
 })
 exports.upload = multer({ storage })

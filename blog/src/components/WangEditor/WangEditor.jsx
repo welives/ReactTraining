@@ -4,9 +4,7 @@ import '@wangeditor/editor/dist/css/style.css'
 import PropTypes from 'prop-types'
 
 /**
- * 封装wangEditor， 通过父组件传入的props进行修改富文本内容
- * @param {Object} props
- * @returns
+ * 封装wangEditor
  */
 class WangEditor extends React.Component {
   toolbarConfig = {}
@@ -31,13 +29,13 @@ class WangEditor extends React.Component {
   }
 
   setFocus() {
-    if (this.state.editor == null) return
+    if (this.state.editor === null) return
     this.state.editor.focus()
   }
 
   // 及时销毁 editor
   componentWillUnmount() {
-    if (this.state.editor == null) return
+    if (this.state.editor === null) return
     this.state.editor.destroy()
     this.setState({ editor: null })
   }

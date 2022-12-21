@@ -1,6 +1,5 @@
 const express = require('express')
 const helmet = require('helmet')
-const cors = require('cors')
 const morgan = require('morgan')
 const cookieParser = require('cookie-parser')
 const path = require('path')
@@ -17,11 +16,6 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // 跨域处理
-app.use(cors())
-app.use((req, res, next) => {
-  res.header('Cross-Origin-Resource-Policy', 'cross-origin')
-  next()
-})
 
 // 解析json格式的请求体数据
 app.use(express.json())
@@ -32,7 +26,11 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 
 // 静态资源
-app.use(express.static(path.resolve(__dirname, 'public')))
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header('Cross-Origin-Resource-Policy', 'cross-origin')
+  next()
+}, express.static(path.resolve(__dirname, 'public')))
 
 app.use('/api/upload', require('./routes/uploadRoutes'))
 app.use('/api/auth', require('./routes/userRoutes'))

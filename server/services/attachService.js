@@ -1,5 +1,4 @@
 const db = require('../db')
-const uuid = require('uuid')
 const path = require('path')
 const sizeOf = require('image-size')
 const AppError = require('../utils/appError')
@@ -12,6 +11,7 @@ const AppError = require('../utils/appError')
  */
 exports.create = (file, opt = {}) => {
   let columns, values
+  const uuid = path.basename(file.filename, path.extname(file.filename))
   const savePath = path.join(path.basename(file.destination), file.filename)
   if (opt.type === 'image') {
     const { width, height } = sizeOf(file.path)
@@ -28,7 +28,7 @@ exports.create = (file, opt = {}) => {
       'created_at',
     ]
     values = [
-      uuid.v1(),
+      uuid,
       opt.type,
       file.mimetype,
       file.size,

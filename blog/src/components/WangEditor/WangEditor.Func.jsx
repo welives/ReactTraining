@@ -14,9 +14,7 @@ WangEditor.defaultProps = {
 }
 
 /**
- * 封装wangEditor， 通过父组件传入的props进行修改富文本内容
- * @param {Object} props
- * @returns
+ * 封装wangEditor
  */
 function WangEditor({ html, setHtml }, ref) {
   const [editor, setEditor] = useState(null) // 存储 editor 实例
@@ -34,8 +32,8 @@ function WangEditor({ html, setHtml }, ref) {
   }
   // 通过 useImperativeHandle 把子组件的方法暴露给父组件
   useImperativeHandle(ref, () => ({
-    focus: () => {
-      if (editor == null) return
+    setFocus: () => {
+      if (editor === null) return
       editor.focus()
     },
   }))
@@ -43,7 +41,7 @@ function WangEditor({ html, setHtml }, ref) {
   // 及时销毁 editor
   useEffect(() => {
     return () => {
-      if (editor == null) return
+      if (editor === null) return
       editor.destroy()
       setEditor(null)
     }
