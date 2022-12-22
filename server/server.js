@@ -1,7 +1,7 @@
 // 加载配置
 require('dotenv').config({ path: './config.env' })
 // 连接数据库
-require('./db')
+process.env.DB_CONNECT_TYPE === 'pool' ? require('./pool') : require('./db')
 
 const app = require('./app')
 

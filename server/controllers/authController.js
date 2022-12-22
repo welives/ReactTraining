@@ -1,5 +1,8 @@
 const jwt = require('jsonwebtoken')
-const userService = require('../services/userService')
+const userService =
+  process.env.DB_CONNECT_TYPE === 'pool'
+    ? require('../services/pool/userService')
+    : require('../services/userService')
 const catchAsync = require('../utils/catchAsync')
 const AppError = require('../utils/appError')
 

@@ -3,7 +3,10 @@ const path = require('path')
 const multer = require('multer')
 const dayjs = require('dayjs')
 const uuid = require('uuid')
-const attachService = require('../services/attachService')
+const attachService =
+  process.env.DB_CONNECT_TYPE === 'pool'
+    ? require('../services/pool/attachService')
+    : require('../services/attachService')
 const AppError = require('../utils/appError')
 
 const storage = multer.diskStorage({

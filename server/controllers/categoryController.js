@@ -1,4 +1,7 @@
-const categoryService = require('../services/categoryService')
+const categoryService =
+  process.env.DB_CONNECT_TYPE === 'pool'
+    ? require('../services/pool/categoryService')
+    : require('../services/categoryService')
 const catchAsync = require('../utils/catchAsync')
 const AppError = require('../utils/appError')
 

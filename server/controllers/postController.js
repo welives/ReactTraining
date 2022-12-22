@@ -1,4 +1,7 @@
-const postService = require('../services/postService')
+const postService =
+  process.env.DB_CONNECT_TYPE === 'pool'
+    ? require('../services/pool/postService')
+    : require('../services/postService')
 const catchAsync = require('../utils/catchAsync')
 const AppError = require('../utils/appError')
 
